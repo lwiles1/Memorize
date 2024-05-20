@@ -13,6 +13,7 @@ struct ContentView: View {
     
     var body: some View {
         VStack {
+            title
             ScrollView {
                 cards
             }
@@ -29,6 +30,12 @@ struct ContentView: View {
             Image(systemName: symbol)
         })
         .disabled(cardCount + offset < 1 || cardCount + offset > emojis.count)
+    }
+    
+    var title: some View {
+        Text("Memorize")
+            .font(.title)
+            .fontWeight(.bold)
     }
     
     var cardCountAdjusters: some View {
