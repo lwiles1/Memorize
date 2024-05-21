@@ -8,16 +8,14 @@
 import SwiftUI
 
 struct ContentView: View {
-    let emojis: Array<String> = ["👻", "🕷️", "🎃", "👹", "💀", "❄️", "🧙", "🙀", "😈", "😱", "☠️", "🍭"]
-    let natu: Array<String> = ["🌹", "🍄", "🌿", "🪵", "🌦️", "🌊", "🌙", "🐣", "🐾", "🌺", "🌻", "🌲"]
-    let city: Array<String> = ["🚗", "✈️", "🏦", "💒", "🚦", "🚧", "🧑🏼‍🚒", "🧑🏼‍💻", "💵", "🌆", "🏗️", "🚎"]
     
-    enum Theme: String, CaseIterable, Identifiable {
-        case halloween, nature, cityLife
-        var id: Self { self }
-    }
+    let emojiThemes: [String: [String]] = [
+        "Halloween": ["👻", "🕷️", "🎃", "👹", "💀", "❄️", "🧙", "🙀", "😈", "😱", "☠️", "🍭"],
+        "Nature": ["🌹", "🍄", "🌿", "🪵", "🌦️", "🌊", "🌙", "🐣", "🐾", "🌺", "🌻", "🌲"],
+        "CityLife": ["🚗", "✈️", "🏦", "💒", "🚦", "🚧", "🧑🏼‍🚒", "🧑🏼‍💻", "💵", "🌆", "🏗️", "🚎"]
+    ]
     
-    @State private var selectedTheme: Theme = .halloween
+    @State private var theme = "Halloween"
     @State var cardCount = 4
     
     var body: some View {
@@ -39,17 +37,16 @@ struct ContentView: View {
         }, label: {
             Image(systemName: symbol)
         })
-        .disabled(cardCount + offset < 1 || cardCount + offset > emojis.count)
+        .disabled(cardCount + offset < 1 || cardCount + offset > emojiThemes[theme]?.count ?? 12)
     }
     
     var themesPicker: some View {
         VStack {
-            Text("Themes:")
-            Picker("Theme", selection: $selectedTheme) {
-                ForEach(Theme.allCases) { theme in
-                    Text(theme.rawValue.capitalized)
+            Picker("Emoji Set", selection: $theme) {
+                ForEach(emojiThemes.keys.sorted(), id: \.self) { key in Text(emojiThemes[key]?.first ?? "").tag(key)
                 }
-            }.pickerStyle(.segmented)
+            }
+            .pickerStyle(.segmented)
         }
     }
     
@@ -72,7 +69,7 @@ struct ContentView: View {
     var cards: some View {
         LazyVGrid(columns: [GridItem(.adaptive(minimum: 120))]) {
             ForEach(0..<cardCount, id: \.self) { index in
-                CardView(content: emojis[index])
+                CardView(content: emojiThemes[theme]?[index] ?? "")
                     .aspectRatio(2/3, contentMode: .fit)
             }
         }
