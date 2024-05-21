@@ -9,6 +9,15 @@ import SwiftUI
 
 struct ContentView: View {
     let emojis: Array<String> = ["👻", "🕷️", "🎃", "👹", "💀", "❄️", "🧙", "🙀", "😈", "😱", "☠️", "🍭"]
+    let natu: Array<String> = ["🌹", "🍄", "🌿", "🪵", "🌦️", "🌊", "🌙", "🐣", "🐾", "🌺", "🌻", "🌲"]
+    let city: Array<String> = ["🚗", "✈️", "🏦", "💒", "🚦", "🚧", "🧑🏼‍🚒", "🧑🏼‍💻", "💵", "🌆", "🏗️", "🚎"]
+    
+    enum Theme: String, CaseIterable, Identifiable {
+        case halloween, nature, cityLife
+        var id: Self { self }
+    }
+    
+    @State private var selectedTheme: Theme = .halloween
     @State var cardCount = 4
     
     var body: some View {
@@ -19,6 +28,7 @@ struct ContentView: View {
             }
             Spacer()
             cardCountAdjusters
+            themesPicker
         }
         .padding()
     }
@@ -30,6 +40,17 @@ struct ContentView: View {
             Image(systemName: symbol)
         })
         .disabled(cardCount + offset < 1 || cardCount + offset > emojis.count)
+    }
+    
+    var themesPicker: some View {
+        VStack {
+            Text("Themes:")
+            Picker("Theme", selection: $selectedTheme) {
+                ForEach(Theme.allCases) { theme in
+                    Text(theme.rawValue.capitalized)
+                }
+            }.pickerStyle(.segmented)
+        }
     }
     
     var title: some View {
