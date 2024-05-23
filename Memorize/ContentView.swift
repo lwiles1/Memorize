@@ -11,12 +11,14 @@ struct ContentView: View {
     
     let emojiThemes: [String: [String]] = [
         "Halloween": ["👻", "🕷️", "🎃", "👹", "💀", "❄️", "🧙", "🙀", "😈", "😱", "☠️", "🍭"],
-        "Nature": ["🌹", "🍄", "🌿", "🪵", "🌦️", "🌊", "🌙", "🐣", "🐾", "🌺", "🌻", "🌲"],
-        "CityLife": ["🚗", "✈️", "🏦", "💒", "🚦", "🚧", "🧑🏼‍🚒", "🧑🏼‍💻", "💵", "🌆", "🏗️", "🚎"]
+        "Nature": ["🌹", "🍄", "🌿", "🪵", "🌦️", "🌊", "🌙", "🐣", "🐾", "🌻", "🌲"],
+        "CityLife": ["🚗", "✈️", "🏦", "🚦", "🚧", "🧑🏼‍🚒", "🧑🏼‍💻", "💵", "🏗️", "🚎"]
     ]
     
+    @State var emojis: Array<String> = []
     @State private var theme = "Halloween"
-    @State var cardCount = 4
+    @State var cardCount = 8
+    @State var begin: Bool = false
     
     var body: some View {
         VStack {
@@ -25,28 +27,53 @@ struct ContentView: View {
                 cards
             }
             Spacer()
-            cardCountAdjusters
             themesPicker
         }
         .padding()
     }
     
-    func cardCountAdjusters(by offset: Int, symbol: String) -> some View {
-        Button(action: {
-            cardCount += offset
-        }, label: {
-            Image(systemName: symbol)
-        })
-        .disabled(cardCount + offset < 1 || cardCount + offset > emojiThemes[theme]?.count ?? 12)
+    func randomizeCards() {
+        cardCount = emojiThemes[theme]?.count ?? 0
+        emojis = []
+        for i in 0..<(cardCount / 2) {
+            emojis.append(emojiThemes[theme]?[i] ?? "")
+            emojis.append(emojiThemes[theme]?[i] ?? "")
+            emojis.shuffle()
+        }
     }
     
     var themesPicker: some View {
-        VStack {
-            Picker("Emoji Set", selection: $theme) {
-                ForEach(emojiThemes.keys.sorted(), id: \.self) { key in Text(emojiThemes[key]?.first ?? "").tag(key)
+        HStack {
+            Button(action: {
+                        theme = "Halloween"
+            }) {
+                VStack {
+                    Image(systemName: "moon.fill")
+                    Text("Halloween")
                 }
             }
-            .pickerStyle(.segmented)
+            Spacer()
+            Button(action: {
+                        theme = "CityLife"
+            }) {
+                VStack {
+                    Image(systemName: "car")
+                    Text("City Life")
+                }
+            }
+            Spacer()
+            Button(action: {
+                        theme = "Nature"
+            }) {
+                VStack {
+                    Image(systemName: "tree")
+                    Text("Nature")
+                }
+            }
+        }.onChange(of: theme) {
+            randomizeCards()
+        }.onAppear {
+            randomizeCards()
         }
     }
     
@@ -54,6 +81,27 @@ struct ContentView: View {
         Text("Memorize")
             .font(.title)
             .fontWeight(.bold)
+    }
+    
+    var cards: some View {
+        LazyVGrid(columns: [GridItem(.adaptive(minimum: 120))]) {
+            if !emojis.isEmpty {
+                ForEach(0..<cardCount, id: \.self) { index in
+                    CardView(content: emojis[index])
+                        .aspectRatio(2/3, contentMode: .fit)
+                }
+            }
+        }
+        .foregroundColor(.orange)
+    }
+    
+    func cardCountAdjusters(by offset: Int, symbol: String) -> some View {
+        Button(action: {
+            cardCount += offset * 2
+        }, label: {
+            Image(systemName: symbol)
+        })
+        .disabled(cardCount + offset < 8 || cardCount + offset > emojiThemes[theme]?.count ?? 12)
     }
     
     var cardCountAdjusters: some View {
@@ -64,16 +112,6 @@ struct ContentView: View {
         }
         .imageScale(.large)
         .font(.largeTitle)
-    }
-    
-    var cards: some View {
-        LazyVGrid(columns: [GridItem(.adaptive(minimum: 120))]) {
-            ForEach(0..<cardCount, id: \.self) { index in
-                CardView(content: emojiThemes[theme]?[index] ?? "")
-                    .aspectRatio(2/3, contentMode: .fit)
-            }
-        }
-        .foregroundColor(.orange)
     }
     
     var cardRemover: some View {
