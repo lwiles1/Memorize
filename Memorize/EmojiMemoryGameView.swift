@@ -26,6 +26,7 @@ struct EmojiMemoryGameView: View {
             title
             ScrollView {
                 cards
+                    .animation(.default, value: viewModel.cards)
             }
             Spacer()
             themesPicker
@@ -71,9 +72,7 @@ struct EmojiMemoryGameView: View {
                 }
             }
             Button("Shuffle") {
-                VStack {
-                    viewModel.shuffle()
-                }
+                viewModel.shuffle()
             }
         }.onChange(of: theme) {
             cardCount = emojiThemes[theme]?.count ?? 0 * 2
@@ -90,14 +89,12 @@ struct EmojiMemoryGameView: View {
     }
     
     var cards: some View {
-        LazyVGrid(columns: [GridItem(.adaptive(minimum: 85), spacing: 0)]) {
-            if !emojis.isEmpty {
-                ForEach(viewModel.cards.indices, id: \.self) { index in
-                    CardView(viewModel.cards[index])
+        LazyVGrid(columns: [GridItem(.adaptive(minimum: 85), spacing: 0)], spacing: 0) {
+                ForEach(viewModel.cards) { card in
+                    CardView(card)
                         .aspectRatio(2/3, contentMode: .fit)
                         .padding(4)
                 }
-            }
         }
         .foregroundColor(.orange)
     }
